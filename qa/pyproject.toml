@@ -1,5 +1,5 @@
 [project]
-name = "mig"
+name = "qa"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -9,11 +9,9 @@ authors = [
 requires-python = ">=3.14"
 dependencies = []
 
-[tool.uv]
-package = false
+[project.scripts]
+qa = "qa:main"
 
-[tool.uv.workspace]
-members = [
-    "qa",
-    "core",
-]
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"

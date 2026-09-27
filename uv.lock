@@ -2,7 +2,24 @@ version = 1
 revision = 3
 requires-python = ">=3.14"
 
+[manifest]
+members = [
+    "core",
+    "mig",
+    "qa",
+]
+
+[[package]]
+name = "core"
+version = "0.1.0"
+source = { editable = "core" }
+
 [[package]]
 name = "mig"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
+
+[[package]]
+name = "qa"
+version = "0.1.0"
+source = { editable = "qa" }
