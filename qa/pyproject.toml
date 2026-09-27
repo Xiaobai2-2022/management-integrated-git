@@ -7,7 +7,9 @@ authors = [
     { name = "Zhifan Li", email = "z2367li@uwaterloo.ca" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "utils",
+]
 
 [project.scripts]
 qa = "qa:main"
@@ -15,3 +17,6 @@ qa = "qa:main"
 [build-system]
 requires = ["uv_build>=0.12.17,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.uv.sources]
+utils = { workspace = true }
