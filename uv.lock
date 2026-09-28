@@ -4,6 +4,7 @@ requires-python = ">=3.14"
 
 [manifest]
 members = [
+    "commands",
     "mig",
     "qa",
     "utils",
@@ -102,6 +103,21 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/4c/13/7d740c5849255756bc17888787313b61fd38a0a8304fc4f073dfc46122aa/comm-0.2.3.tar.gz", hash = "sha256:2dc8048c10962d55d7ad693be1e7045d891b7ce8d999c97963a5e3e99c055971", size = 6319, upload-time = "2025-07-25T14:02:04.452Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/60/97/891a0971e1e4a8c5d2b20bbe0e524dc04548d2307fee33cdeba148fd4fc7/comm-0.2.3-py3-none-any.whl", hash = "sha256:c615d91d75f7f04f095b30d1c1711babd43bdc6419c1be9886a85f2f4e489417", size = 7294, upload-time = "2025-07-25T14:02:02.896Z" },
+]
+
+[[package]]
+name = "commands"
+version = "0.1.0"
+source = { editable = "commands" }
+dependencies = [
+    { name = "mig" },
+    { name = "utils" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "mig", editable = "." },
+    { name = "utils", editable = "utils" },
 ]
 
 [[package]]
@@ -244,14 +260,16 @@ wheels = [
 [[package]]
 name = "mig"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
+    { name = "commands" },
     { name = "ipykernel" },
     { name = "utils" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "commands", editable = "commands" },
     { name = "ipykernel", specifier = ">=7.3.0" },
     { name = "utils", editable = "utils" },
 ]

@@ -1,5 +1,5 @@
 [project]
-name = "mig"
+name = "commands"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -8,24 +8,17 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
-    "commands",
-    "ipykernel>=7.3.0",
+    "mig",
     "utils",
 ]
 
 [project.scripts]
-mig = "mig.cli:main"
+commands = "commands:main"
 
-[tool.uv]
-package = true
-
-[tool.uv.workspace]
-members = [
-    "utils",
-    "qa",
-    "commands",
-]
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
 
 [tool.uv.sources]
 utils = { workspace = true }
-commands = { workspace = true }
+mig = { workspace = true }
