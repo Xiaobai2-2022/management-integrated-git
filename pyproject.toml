@@ -29,3 +29,8 @@ members = [
 [tool.uv.sources]
 utils = { workspace = true }
 commands = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

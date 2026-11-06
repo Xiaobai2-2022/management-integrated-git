@@ -1,15 +1,12 @@
-from utils.logger import log_success, log_fail, log_warning, log_info
-
-from commands.init import init_repo
-
-from mig.mig_exceptions import NonEmptyDirectoryInitError
-
 import argparse
 
+from utils.logger import log_success, log_fail, log_warning, log_info
+from commands.init import init_repo
+from mig.mig_exceptions import NonEmptyDirectoryInitError
 
 
-def main() -> None:
 
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="mig",
         description="Management Integrated Git CLI",
@@ -29,7 +26,7 @@ def main() -> None:
         "directory",
         nargs="?",
         default=".",
-        help="Directory to initialize, default is current working directory.",
+        help="Directory to initialize; defaults to the current directory.",
     )
 
     init_parser.add_argument(
@@ -37,13 +34,22 @@ def main() -> None:
         type=str.lower,
         choices=["kanban", "waterfall", "scrum", "custom"],
         default="kanban",
-        help="Initialize a new MIG repository with selected workflow.",
+        help="Workflow to use; defaults to kanban.",
     )
 
     init_parser.add_argument(
         "--force",
         action="store_true",
-        help="Initialize a MIG repository even if the target directory is not empty.",
+        help=(
+            "Allow initialization in a non-empty existing Git repository. "
+            "Existing MIG metadata is never overwritten."
+        ),
+    )
+
+    init_parser.add_argument(
+        "--stage",
+        action="store_true",
+        help="Stage shared MIG metadata after initialization; do not commit.",
     )
 
     clone_parser = subparsers.add_parser(
@@ -56,38 +62,86 @@ def main() -> None:
         help="Repository URL or path to clone.",
     )
 
+    return parser
+
+
+
+def handle_init(args: argparse.Namespace) -> int:
+    log_info(
+        f"Initializing MIG repository with workflow '{args.workflow}' "
+        f"in '{args.directory}'."
+    )
+
+    try:
+        result = init_repo(
+            directory=args.directory,
+            workflow=args.workflow,
+            force=args.force,
+            stage=args.stage,
+        )
+
+    except NonEmptyDirectoryInitError as exc:
+        log_warning(str(exc))
+        return 1
+
+    except OSError as exc:
+        log_fail(f"Filesystem error: {exc}")
+        return 1
+
+    except (ValueError, RuntimeError) as exc:
+        log_fail(str(exc))
+        return 1
+
+    log_success(
+        f"Initialized MIG repository with workflow '{args.workflow}' "
+        f"in '{result.directory}'."
+    )
+
+    if result.staging_error is not None:
+        log_warning(
+            "MIG initialization succeeded, but metadata staging failed: "
+            f"{result.staging_error}"
+        )
+        log_info(
+            "From the repository root, run:\n"
+            "  git add -- .mig/config .mig/workflow.json"
+        )
+
+        # Initialization succeeded, but the requested --stage step failed.
+        return 1
+
+    if result.metadata_staged:
+        log_success("Shared MIG metadata staged. No commit was created.")
+
+    return 0
+
+
+
+def handle_clone(args: argparse.Namespace) -> int:
+    log_warning(
+        f"Cloning '{args.repository}' is not implemented yet."
+    )
+    return 1
+
+
+
+def main() -> None:
+    parser = build_parser()
     args = parser.parse_args()
 
     match args.command:
-
         case "init":
-
-            log_info(
-                f"Initializing MIG repository with workflow: '{args.workflow}' in directory: '{args.directory}'"
-            )
-
-            if args.force:
-                log_warning(f"Proceeding regardless if the target directory is empty: '{args.directory}'")
-
-            try:
-
-                init_repo(directory=args.directory, workflow=args.workflow, force=args.force)
-
-                log_success(f"Successfully initialized MIG repository with workflow: {args.workflow}")
-
-            except NonEmptyDirectoryInitError as e:
-                log_warning(f"{e}")
-
-            except OSError as e:
-                log_fail(f"Filesystem error: {e}")
-
-            except Exception as e:
-                log_fail(f"{e}")
+            exit_code = handle_init(args)
 
         case "clone":
-            log_info(
-                f"Cloning new MIG repository: {args.repository}"
-            )
+            exit_code = handle_clone(args)
 
         case _:
-            log_fail("Unknown command")
+            parser.error(f"Unknown command: {args.command}")
+
+    raise SystemExit(exit_code)
+
+
+
+if __name__ == "__main__":
+    main()
