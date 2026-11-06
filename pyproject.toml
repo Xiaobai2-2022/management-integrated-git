@@ -8,18 +8,24 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
+    "commands",
     "ipykernel>=7.3.0",
     "utils",
 ]
 
+[project.scripts]
+mig = "mig.cli:main"
+
 [tool.uv]
-package = false
+package = true
 
 [tool.uv.workspace]
 members = [
     "utils",
     "qa",
+    "commands",
 ]
 
 [tool.uv.sources]
 utils = { workspace = true }
+commands = { workspace = true }
